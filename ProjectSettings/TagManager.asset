@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Food
   - Body
+  - PowerUp
   layers:
   - Default
   - TransparentFX
