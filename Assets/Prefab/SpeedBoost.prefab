@@ -11,10 +11,10 @@ GameObject:
   - component: {fileID: 4135786043722245758}
   - component: {fileID: 4135786043722245745}
   - component: {fileID: 4135786043722245744}
-  - component: {fileID: 5170210383989752644}
+  - component: {fileID: 5410720891895418262}
   m_Layer: 0
-  m_Name: SpeedUp
-  m_TagString: PowerUp
+  m_Name: SpeedBoost
+  m_TagString: 'SpeedBoost  '
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -102,7 +102,7 @@ CircleCollider2D:
   m_Offset: {x: 0, y: -0.03639719}
   serializedVersion: 2
   m_Radius: 0.19110087
---- !u!114 &5170210383989752644
+--- !u!114 &5410720891895418262
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

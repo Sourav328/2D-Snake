@@ -6,7 +6,12 @@ TagManager:
   tags:
   - Food
   - Body
+  - ScoreBoost
+  - 'SpeedBoost  '
+  - Shield
   - PowerUp
+  - MassBurner
+  - MassGainer
   layers:
   - Default
   - TransparentFX

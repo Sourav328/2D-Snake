@@ -1,14 +1,23 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class Snake : MonoBehaviour
 {
+    [Header("Movement Settings")]
     [SerializeField] private Vector2 direction = Vector2.right;
     [SerializeField] private float moveDelay = 0.2f;
     [SerializeField] private GameObject bodySegmentPrefab;
     [SerializeField] private int initialSize = 3;
+
+    [Header("Power-Up Settings")]
     [SerializeField] private float powerUpDuration = 3f;
+    [SerializeField] private float speedBoostMultiplier = 2f;
+    [SerializeField] private float shieldBlinkSpeed = 5f;
+
+    [Header("Visual")]
+    [SerializeField] private SpriteRenderer headRenderer; // Assign Head sprite here
 
     private List<Transform> bodyParts = new List<Transform>();
     private Vector3 lastHeadPos;
@@ -16,7 +25,7 @@ public class Snake : MonoBehaviour
     private float powerUpTimer = 0f;
 
     private bool isShielded = false;
-    private bool doubleScore = false;
+    private bool scoreBoost = false;
     private bool speedBoost = false;
 
     private void Start()
@@ -42,9 +51,11 @@ public class Snake : MonoBehaviour
             if (powerUpTimer <= 0f)
             {
                 isShielded = false;
-                doubleScore = false;
+                scoreBoost = false;
                 speedBoost = false;
                 CancelSpeedBoost();
+                StopCoroutine(BlinkShield());
+                if (headRenderer != null) headRenderer.enabled = true; // Ensure visible after blinking
             }
         }
     }
@@ -98,29 +109,69 @@ public class Snake : MonoBehaviour
         bodyParts.Add(segment.transform);
     }
 
+    private void Shrink()
+    {
+        if (bodyParts.Count > 0)
+        {
+            Destroy(bodyParts[bodyParts.Count - 1].gameObject);
+            bodyParts.RemoveAt(bodyParts.Count - 1);
+        }
+    }
+
+    public int BodySize()
+    {
+        return bodyParts.Count;
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (Time.time - startTime < 1f) return;
 
-        if (other.CompareTag("Food"))
-        {
-            Grow();
-            Destroy(other.gameObject);
-            FindObjectOfType<GameManager>().SpawnFood();
+        string tag = other.tag;
 
-            int scoreToAdd = doubleScore ? 2 : 1;
-            ScoreManager.Instance.AddScore(scoreToAdd);
+        if (tag == "Food" || tag == "MassGainer" || tag == "MassBurner")
+        {
+            Food food = other.GetComponent<Food>();
+            if (food != null)
+            {
+                if (tag == "Food")
+                {
+                    Grow();
+                    ScoreManager.Instance.AddScore(1);
+                    Destroy(other.gameObject);
+                    FindObjectOfType<GameManager>().SpawnFood(); // Respawn only normal food
+                }
+                else if ((tag == "MassGainer" || tag == "Mass Gainer") && ScoreManager.Instance.GetScore() > 10)
+                {
+                    Grow();
+                    Grow();
+                    Destroy(other.gameObject);
+                }
+                else if ((tag == "MassBurner" || tag == "Mass Burner") && ScoreManager.Instance.GetScore() > 10)
+                {
+                    Shrink();
+                    Shrink();
+                    Destroy(other.gameObject);
+                }
+                else
+                {
+                    Destroy(other.gameObject); // Invalid tag or not enough score
+                }
+            }
         }
-        else if (other.CompareTag("Body"))
+        else if (tag == "Body")
         {
             if (!isShielded)
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
-        else if (other.CompareTag("PowerUp"))
+        else if (tag == "ScoreBoost" || tag == "SpeedBoost" || tag == "Shield")
         {
-            PowerUp powerUp = other.GetComponent<PowerUp>();
-            ActivatePowerUp(powerUp.powerType);
-            Destroy(other.gameObject);
+            PowerUp power = other.GetComponent<PowerUp>();
+            if (power != null)
+            {
+                ActivatePowerUp(power.powerType);
+                Destroy(other.gameObject);
+            }
         }
     }
 
@@ -132,17 +183,17 @@ public class Snake : MonoBehaviour
         {
             case PowerUpType.Shield:
                 isShielded = true;
+                StartCoroutine(BlinkShield());
                 break;
+
             case PowerUpType.ScoreBoost:
-                doubleScore = true;
+                scoreBoost = true;
                 break;
-            case PowerUpType.SpeedUp:
+
+            case PowerUpType.SpeedBoost:
                 speedBoost = true;
                 CancelInvoke(nameof(Move));
-                InvokeRepeating(nameof(Move), moveDelay / 2f, moveDelay / 2f);
-                break;
-            default:
-                print("wrong");
+                InvokeRepeating(nameof(Move), moveDelay / speedBoostMultiplier, moveDelay / speedBoostMultiplier);
                 break;
         }
     }
@@ -151,5 +202,25 @@ public class Snake : MonoBehaviour
     {
         CancelInvoke(nameof(Move));
         InvokeRepeating(nameof(Move), moveDelay, moveDelay);
+    }
+
+    private IEnumerator BlinkShield()
+    {
+        float elapsed = 0f;
+        while (elapsed < powerUpDuration)
+        {
+            if (headRenderer != null)
+                headRenderer.enabled = !headRenderer.enabled;
+
+            yield return new WaitForSeconds(1f / shieldBlinkSpeed);
+            elapsed += 1f / shieldBlinkSpeed;
+        }
+
+        if (headRenderer != null)
+            headRenderer.enabled = true;
+    }
+    public bool HasScoreBoost()
+    {
+        return scoreBoost;
     }
 }

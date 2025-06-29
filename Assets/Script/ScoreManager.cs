@@ -21,12 +21,22 @@ public class ScoreManager : MonoBehaviour
 
     public void AddScore(int amount)
     {
-        score += amount;
+        if (FindObjectOfType<Snake>().HasScoreBoost())
+            score += amount * 2;
+        else
+            score += amount;
+
         UpdateScoreText();
+    }
+
+    public int GetScore()
+    {
+        return score;
     }
 
     private void UpdateScoreText()
     {
         scoreText.text = "Score: " + score.ToString();
     }
+
 }
