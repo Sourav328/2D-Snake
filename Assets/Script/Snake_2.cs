@@ -1,9 +1,10 @@
+// ==== SnakePlayer2.cs ====
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class Snake : MonoBehaviour
+public class Snake_2 : MonoBehaviour
 {
     [Header("Movement Settings")]
     [SerializeField] private Vector2 direction = Vector2.right;
@@ -90,13 +91,13 @@ public class Snake : MonoBehaviour
 
     private void HandleInput()
     {
-        if (Input.GetKeyDown(KeyCode.UpArrow) && direction != Vector2.down)
+        if (Input.GetKeyDown(KeyCode.W) && direction != Vector2.down)
             direction = Vector2.up;
-        else if (Input.GetKeyDown(KeyCode.DownArrow) && direction != Vector2.up)
+        else if (Input.GetKeyDown(KeyCode.S) && direction != Vector2.up)
             direction = Vector2.down;
-        else if (Input.GetKeyDown(KeyCode.LeftArrow) && direction != Vector2.right)
+        else if (Input.GetKeyDown(KeyCode.A) && direction != Vector2.right)
             direction = Vector2.left;
-        else if (Input.GetKeyDown(KeyCode.RightArrow) && direction != Vector2.left)
+        else if (Input.GetKeyDown(KeyCode.D) && direction != Vector2.left)
             direction = Vector2.right;
     }
 
@@ -139,12 +140,12 @@ public class Snake : MonoBehaviour
             {
                 case FoodType.Food:
                     Grow();
-                    ScoreManager.Instance.AddScore(1);
+                    ScoreManager.Instance.AddScore(1, 2); // Player 2
                     FindObjectOfType<GameManager>().SpawnFood();
                     break;
                 case FoodType.MassGainer:
                     Grow(3);
-                    ScoreManager.Instance.AddScore(1);
+                    ScoreManager.Instance.AddScore(1, 2);
                     break;
                 case FoodType.MassBurner:
                     if (BodySize() > 3)

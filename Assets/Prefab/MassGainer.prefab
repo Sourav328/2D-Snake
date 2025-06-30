@@ -115,5 +115,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   foodType: 1
-  sizeChange: 2
+  sizeChange: 3
   lifetime: 5
