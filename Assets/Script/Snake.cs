@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class Snake : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [SerializeField] private Vector2 direction = Vector2.right;
+    [SerializeField] public Vector2 direction = Vector2.right;
     [SerializeField] private float moveDelay = 0.2f;
     [SerializeField] private GameObject bodySegmentPrefab;
     [SerializeField] private int initialSize = 3;
@@ -30,6 +30,7 @@ public class Snake : MonoBehaviour
 
     private void Start()
     {
+        _ = speedBoost;
         startTime = Time.time;
 
         for (int i = 0; i < initialSize; i++)
@@ -88,7 +89,7 @@ public class Snake : MonoBehaviour
         return value < min ? value + range : value > max ? value - range : value;
     }
 
-    private void HandleInput()
+    public virtual void HandleInput()
     {
         if (Input.GetKeyDown(KeyCode.UpArrow) && direction != Vector2.down)
             direction = Vector2.up;
